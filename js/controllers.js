@@ -43,6 +43,46 @@ function startWatch($scope) {
     defaultRadius = 0;
     preciseDefaultRadius = defaultRadius.toFixed(3);
 
+    // Example designs follow:
+    $scope.designs["The Hemsley"] = {name: "Concentric", programs: {}, poles:
+        [{rods: [
+            {r: (3).toFixed(3), theta: 90, height: (2).toFixed(3), color: 'W'}, 
+            {r: (3).toFixed(3), theta: 102.9, height: (2).toFixed(3), color: 'W'}, 
+            {r: (3).toFixed(3), theta: 115.8, height: (2).toFixed(3), color: 'W'}, 
+            {r: (3).toFixed(3), theta: 128.6, height: (2).toFixed(3), color: 'W'}, 
+            {r: (3).toFixed(3), theta: 141.4, height: (2).toFixed(3), color: 'W'}, 
+            {r: (3).toFixed(3), theta: 154.3, height: (2).toFixed(3), color: 'W'}, 
+            {r: (3).toFixed(3), theta: 167.2, height: (2).toFixed(3), color: 'W'}, 
+            {r: (3).toFixed(3), theta: 180, height: (2).toFixed(3), color: 'W'} 
+        ], pos: [-.5, -3.5]},
+        {rods: [
+            {r: (3).toFixed(3), theta: 282.9, height: (2).toFixed(3), color: 'W'}, 
+            {r: (3).toFixed(3), theta: 295.8, height: (2).toFixed(3), color: 'W'}, 
+            {r: (3).toFixed(3), theta: 308.6, height: (2).toFixed(3), color: 'W'}, 
+            {r: (3).toFixed(3), theta: 321.4, height: (2).toFixed(3), color: 'W'}, 
+            {r: (3).toFixed(3), theta: 334.3, height: (2).toFixed(3), color: 'W'}, 
+            {r: (3).toFixed(3), theta: 347.2, height: (2).toFixed(3), color: 'W'}
+        ], pos: [-3.5, -.5]},
+    ]};
+
+    $scope.designs["Concentric"] = {name: "Concentric", programs: {}, poles:
+        [{rods: [
+            {r: 0, theta: 0, height: (2).toFixed(3), color: 'W'}, 
+            {r: (0.750).toFixed(3), theta: 0, height: (2).toFixed(3), color: 'W'}, 
+            {r: (0.750).toFixed(3), theta: 90, height: (2).toFixed(3), color: 'W'}, 
+            {r: (0.750).toFixed(3), theta: 180, height: (2).toFixed(3), color: 'W'}, 
+            {r: (0.750).toFixed(3), theta: 270, height: (2).toFixed(3), color: 'W'},
+            {r: (1.500).toFixed(3), theta: 0, height: (2).toFixed(3), color: 'W'}, 
+            {r: (1.500).toFixed(3), theta: 45, height: (2).toFixed(3), color: 'W'}, 
+            {r: (1.500).toFixed(3), theta: 90, height: (2).toFixed(3), color: 'W'}, 
+            {r: (1.500).toFixed(3), theta: 135, height: (2).toFixed(3), color: 'W'}, 
+            {r: (1.500).toFixed(3), theta: 180, height: (2).toFixed(3), color: 'W'}, 
+            {r: (1.500).toFixed(3), theta: 225, height: (2).toFixed(3), color: 'W'}, 
+            {r: (1.500).toFixed(3), theta: 270, height: (2).toFixed(3), color: 'W'},
+            {r: (1.500).toFixed(3), theta: 315, height: (2).toFixed(3), color: 'W'}
+        ], pos: [-2, -2]}
+    ]};
+
     $scope.removeDesign = function(design) {
         delete $scope.designs[design];
         if (len($scope.designs) == 0) {
