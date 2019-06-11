@@ -33,6 +33,16 @@ function SimCtrl($scope, $rootScope, storage) {
 }
 
 function startWatch($scope) {
+    // Declaring variables and defining default variables with thousandths precision.
+    poleDefaultX = -2;
+    precisePoleDefaultX = poleDefaultX.toFixed(3);
+    poleDefaultY = -2;
+    precisePoleDefaultY = poleDefaultY.toFixed(3);
+    defaultHeight = 3;
+    preciseDefaultHeight = defaultHeight.toFixed(3);
+    defaultRadius = 0;
+    preciseDefaultRadius = defaultRadius.toFixed(3);
+
     $scope.removeDesign = function(design) {
         delete $scope.designs[design];
         if (len($scope.designs) == 0) {
@@ -43,7 +53,7 @@ function startWatch($scope) {
     };
     $scope.newDesign = function() {
         $scope.designs["New Design"] = {name: "New Design", programs: {}, poles:
-                                        [{rods: [{r: 0, theta: 0, height: 3, color: 'R'}], pos: [-2, -2]}]};
+                                        [{rods: [{r: preciseDefaultRadius, theta: 0, height: preciseDefaultHeight, color: 'W'}], pos: [-2, -2]}]};
         $scope.design = "New Design";
     };
     $scope.setDesign = function(name) {
@@ -59,14 +69,22 @@ function startWatch($scope) {
     };
     $scope.addPole = function() {
         var design = $scope.designs[$scope.design];
-        design.poles.push({rods: [{r: 0, theta: 0, height: 3, color: 'R'}], pos: [-2, -2]});
+
+        // Limiting student to 4 poles at maximum (as per the project constraints).
+        if (design.poles.length >= 4) {
+            window.alert("Please design your light sculpture with 4 or fewer poles, as per the project constraints!")
+            return
+        }
+
+        console.log(design.poles);
+        design.poles.push({rods: [{r: preciseDefaultRadius, theta: 0, height: preciseDefaultHeight, color: 'W'}], pos: [-2, -2]});
     };
     $scope.deletePole = function(pole) {
         var poles = $scope.designs[$scope.design].poles;
         poles.splice(poles.indexOf(pole), 1);
     };
     $scope.addRod = function(pole) {
-        pole.rods.push({r: 0, theta: 0, height: 3, color: 'R'});
+        pole.rods.push({r: preciseDefaultRadius, theta: 0, height: preciseDefaultHeight, color: 'W'});
     };
     $scope.deleteRod = function(pole, rod) {
         var poles = $scope.designs[$scope.design].poles,
