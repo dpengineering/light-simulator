@@ -44,26 +44,27 @@ function startWatch($scope) {
     preciseDefaultRadius = defaultRadius.toFixed(3);
 
     // Example designs follow:
-    $scope.designs["The Hemsley"] = {name: "Concentric", programs: {}, poles:
-        [{rods: [
-            {r: (3).toFixed(3), theta: 90, height: (2).toFixed(3), color: 'W'}, 
-            {r: (3).toFixed(3), theta: 102.9, height: (2).toFixed(3), color: 'W'}, 
-            {r: (3).toFixed(3), theta: 115.8, height: (2).toFixed(3), color: 'W'}, 
-            {r: (3).toFixed(3), theta: 128.6, height: (2).toFixed(3), color: 'W'}, 
-            {r: (3).toFixed(3), theta: 141.4, height: (2).toFixed(3), color: 'W'}, 
-            {r: (3).toFixed(3), theta: 154.3, height: (2).toFixed(3), color: 'W'}, 
-            {r: (3).toFixed(3), theta: 167.2, height: (2).toFixed(3), color: 'W'}, 
-            {r: (3).toFixed(3), theta: 180, height: (2).toFixed(3), color: 'W'} 
-        ], pos: [-.5, -3.5]},
-        {rods: [
-            {r: (3).toFixed(3), theta: 282.9, height: (2).toFixed(3), color: 'W'}, 
-            {r: (3).toFixed(3), theta: 295.8, height: (2).toFixed(3), color: 'W'}, 
-            {r: (3).toFixed(3), theta: 308.6, height: (2).toFixed(3), color: 'W'}, 
-            {r: (3).toFixed(3), theta: 321.4, height: (2).toFixed(3), color: 'W'}, 
-            {r: (3).toFixed(3), theta: 334.3, height: (2).toFixed(3), color: 'W'}, 
-            {r: (3).toFixed(3), theta: 347.2, height: (2).toFixed(3), color: 'W'}
-        ], pos: [-3.5, -.5]},
-    ]};
+    // The Hemsley is a solution to a student assignment, so it's comment out here.
+    // $scope.designs["The Hemsley"] = {name: "Concentric", programs: {}, poles:
+    //     [{rods: [
+    //         {r: (3).toFixed(3), theta: 90, height: (2).toFixed(3), color: 'W'}, 
+    //         {r: (3).toFixed(3), theta: 102.9, height: (2).toFixed(3), color: 'W'}, 
+    //         {r: (3).toFixed(3), theta: 115.8, height: (2).toFixed(3), color: 'W'}, 
+    //         {r: (3).toFixed(3), theta: 128.6, height: (2).toFixed(3), color: 'W'}, 
+    //         {r: (3).toFixed(3), theta: 141.4, height: (2).toFixed(3), color: 'W'}, 
+    //         {r: (3).toFixed(3), theta: 154.3, height: (2).toFixed(3), color: 'W'}, 
+    //         {r: (3).toFixed(3), theta: 167.2, height: (2).toFixed(3), color: 'W'}, 
+    //         {r: (3).toFixed(3), theta: 180, height: (2).toFixed(3), color: 'W'} 
+    //     ], pos: [-.5, -3.5]},
+    //     {rods: [
+    //         {r: (3).toFixed(3), theta: 282.9, height: (2).toFixed(3), color: 'W'}, 
+    //         {r: (3).toFixed(3), theta: 295.8, height: (2).toFixed(3), color: 'W'}, 
+    //         {r: (3).toFixed(3), theta: 308.6, height: (2).toFixed(3), color: 'W'}, 
+    //         {r: (3).toFixed(3), theta: 321.4, height: (2).toFixed(3), color: 'W'}, 
+    //         {r: (3).toFixed(3), theta: 334.3, height: (2).toFixed(3), color: 'W'}, 
+    //         {r: (3).toFixed(3), theta: 347.2, height: (2).toFixed(3), color: 'W'}
+    //     ], pos: [-3.5, -.5]},
+    // ]};
 
     $scope.designs["Concentric"] = {name: "Concentric", programs: {}, poles:
         [{rods: [
