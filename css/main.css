@@ -25,36 +25,57 @@ body {
 
 #edit-code {
   position: absolute;
-  top: 50px;
-  left: 50px;
+  top: 0px;
+  right: 0px;
+  width: 100px;
+  height: 50px;
+  padding: 10px;
+  font-size: 20px;
 }
 
 #login, #logout {
   position: absolute;
-  top: 50px;
-  left: 150px;
+  top: 0px;
+  left: 50px;
 }
 
 #export {
   position: absolute;
-  top: 50px;
-  left: 150px;
+  bottom: 0px;
+  left: 0px;
+  width: 150px;
+  height: 50px;
+  padding: 10px;
+  font-size: 20px;
 }
 
 #import {
   position: absolute;
-  top: 50px;
-  left: 250px;
+  bottom: 0px;
+  left: 150px;
+  width: 250px;
+  height: 50px;
+  padding: 13px;
+}
+
+#edit-rods-heading{
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 400px;
+  height: 50px;
+  margin : auto;
+  background-color: #428bca;
+  color: white;
+  padding: 15px;
 }
 
 #edit-rods {
   position: absolute;
-  top: 100px;
-  left: 50px;
-  min-width: 400px;
-  width: 20%;
-  max-height: 90%;
-  max-height: calc(100% - 120px);
+  top: 50px;
+  left: 0px;
+  width: 400px;
+  max-height: calc(100% - 100px);
   overflow: scroll;
 }
 
@@ -116,7 +137,7 @@ body {
 }
 
 #new-design {
-  float: right;
+  float: left;
   margin-top: -2px;
 }
 
