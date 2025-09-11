@@ -68,19 +68,19 @@ function startWatch($scope) {
 
     $scope.designs["Concentric"] = {name: "Concentric", programs: {}, poles:
         [{rods: [
-            {r: 0, theta: 0, height: (2).toFixed(3), color: 'W'}, 
-            {r: (0.750).toFixed(3), theta: 0, height: (2).toFixed(3), color: 'W'}, 
-            {r: (0.750).toFixed(3), theta: 90, height: (2).toFixed(3), color: 'W'}, 
-            {r: (0.750).toFixed(3), theta: 180, height: (2).toFixed(3), color: 'W'}, 
-            {r: (0.750).toFixed(3), theta: 270, height: (2).toFixed(3), color: 'W'},
-            {r: (1.500).toFixed(3), theta: 0, height: (2).toFixed(3), color: 'W'}, 
-            {r: (1.500).toFixed(3), theta: 45, height: (2).toFixed(3), color: 'W'}, 
-            {r: (1.500).toFixed(3), theta: 90, height: (2).toFixed(3), color: 'W'}, 
-            {r: (1.500).toFixed(3), theta: 135, height: (2).toFixed(3), color: 'W'}, 
-            {r: (1.500).toFixed(3), theta: 180, height: (2).toFixed(3), color: 'W'}, 
-            {r: (1.500).toFixed(3), theta: 225, height: (2).toFixed(3), color: 'W'}, 
-            {r: (1.500).toFixed(3), theta: 270, height: (2).toFixed(3), color: 'W'},
-            {r: (1.500).toFixed(3), theta: 315, height: (2).toFixed(3), color: 'W'}
+            {num: 2, r: 0, theta: 0, height: (2).toFixed(3), color: 'W'}, 
+            {num: 3, r: (0.750).toFixed(3), theta: 0, height: (2).toFixed(3), color: 'W'}, 
+            {num: 4, r: (0.750).toFixed(3), theta: 90, height: (2).toFixed(3), color: 'W'}, 
+            {num: 5, r: (0.750).toFixed(3), theta: 180, height: (2).toFixed(3), color: 'W'}, 
+            {num: 6, r: (0.750).toFixed(3), theta: 270, height: (2).toFixed(3), color: 'W'},
+            {num: 7, r: (1.500).toFixed(3), theta: 0, height: (2).toFixed(3), color: 'W'}, 
+            {num: 8, r: (1.500).toFixed(3), theta: 45, height: (2).toFixed(3), color: 'W'}, 
+            {num: 9, r: (1.500).toFixed(3), theta: 90, height: (2).toFixed(3), color: 'W'}, 
+            {num: 10, r: (1.500).toFixed(3), theta: 135, height: (2).toFixed(3), color: 'W'}, 
+            {num: 11, r: (1.500).toFixed(3), theta: 180, height: (2).toFixed(3), color: 'W'}, 
+            {num: 12, r: (1.500).toFixed(3), theta: 225, height: (2).toFixed(3), color: 'W'}, 
+            {num: 13, r: (1.500).toFixed(3), theta: 270, height: (2).toFixed(3), color: 'W'},
+            {num: 14, r: (1.500).toFixed(3), theta: 315, height: (2).toFixed(3), color: 'W'}
         ], pos: [-2, -2]}
     ]};
 
@@ -114,24 +114,47 @@ function startWatch($scope) {
         // Limiting student to 4 poles at maximum (as per the project constraints).
         if (design.poles.length >= 4) {
             window.alert("Please design your light sculpture with 4 or fewer poles, as per the project constraints!")
-            return
+            return;
         }
 
         console.log(design.poles);
-        design.poles.push({rods: [{r: preciseDefaultRadius, theta: 0, height: preciseDefaultHeight, color: 'W'}], pos: [-2, -2]});
+        design.poles.push({rods: [{num: 0, r: preciseDefaultRadius, theta: 0, height: preciseDefaultHeight, color: 'W'}], pos: [-2, -2]});
+        $scope.numberRods();
     };
     $scope.deletePole = function(pole) {
         var poles = $scope.designs[$scope.design].poles;
         poles.splice(poles.indexOf(pole), 1);
+        $scope.numberRods();
     };
     $scope.addRod = function(pole) {
-        pole.rods.push({r: preciseDefaultRadius, theta: 0, height: preciseDefaultHeight, color: 'W'});
+        if ($scope.numberRods(true) > 15)
+        {
+            return;
+        }
+        pole.rods.push({num: 0, r: preciseDefaultRadius, theta: 0, height: preciseDefaultHeight, color: 'W'});
+        $scope.numberRods();
     };
     $scope.deleteRod = function(pole, rod) {
         var poles = $scope.designs[$scope.design].poles,
             pole = poles[poles.indexOf(pole)];
         pole.rods.splice(pole.rods.indexOf(rod), 1);
+        $scope.numberRods();
     };
+    $scope.numberRods = function(justTheNumber=false)
+    {   
+        var poles = $scope.designs[$scope.design].poles;
+        var rodNum = 2;
+        poles.forEach(pole => {
+            pole.rods.forEach(rod => {
+                if(!justTheNumber)
+                {
+                    rod.num = rodNum;
+                }
+                rodNum += 1
+            });
+        })
+        return rodNum;
+    }
     $scope.setDesign();
     $scope.$watch("designs[design].name", function(n) {
         if (typeof n !== 'undefined' && $scope.design !== n) {
