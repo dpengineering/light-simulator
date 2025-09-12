@@ -94,7 +94,7 @@ function startWatch($scope) {
     };
     $scope.newDesign = function() {
         $scope.designs["New Design"] = {name: "New Design", programs: {}, poles:
-                                        [{rods: [{r: preciseDefaultRadius, theta: 0, height: preciseDefaultHeight, color: 'W'}], pos: [-2, -2]}]};
+                                        [{rods: [{num: 2, r: preciseDefaultRadius, theta: 0, height: preciseDefaultHeight, color: 'W'}], pos: [-2, -2]}]};
         $scope.design = "New Design";
     };
     $scope.setDesign = function(name) {
