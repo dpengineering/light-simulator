@@ -118,7 +118,14 @@ function startWatch($scope) {
         }
 
         console.log(design.poles);
-        design.poles.push({rods: [{num: 0, r: preciseDefaultRadius, theta: 0, height: preciseDefaultHeight, color: 'W'}], pos: [-2, -2]});
+        if ($scope.numberRods(true) > 15)
+        {
+            design.poles.push({rods: [], pos: [-2, -2]});
+        }
+        else
+        {
+            design.poles.push({rods: [{num: 0, r: preciseDefaultRadius, theta: 0, height: preciseDefaultHeight, color: 'W'}], pos: [-2, -2]});
+        }
         $scope.numberRods();
     };
     $scope.deletePole = function(pole) {
