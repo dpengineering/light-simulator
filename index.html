@@ -25,27 +25,24 @@
     <a ng-click="coding = true" type="button" class="btn btn-primary btn-large" id="edit-code">Edit code</a>
     <a id="export" type="button" class="btn btn-primary btn-large" ng-click="export()">Export</a>
     <input type="file" id="import" class="btn btn-primary btn-large">Import</a>
+    <div id="edit-rods-heading" class="panel-heading">
+      <h4 class="panel-title">
+        <a class="accordion-toggle" data-toggle="collapse" href="#editing-rods">
+              &#8203 &#8203 &#8203 &#8203 &#8203
+        </a>
+        <button ng-click="newDesign()" id="new-design" type="button" class="btn btn-success btn-xs">
+          <span class="glyphicon glyphicon-plus"></span> New Design
+        </button>
+        <select ng-model="design" ng-options="k as k for (k, v) in designs"></select>
+      </h4>
+    </div>
     <div id="edit-rods" class="panel panel-primary">
-      <div class="panel-heading">
-        <h4 class="panel-title">
-          <a class="accordion-toggle" data-toggle="collapse" href="#editing-rods">
-            Edit&nbsp;
-          </a>
-          <select ng-model="design" ng-options="k as k for (k, v) in designs"></select>
-          <button ng-click="newDesign()" id="new-design" type="button" class="btn btn-success btn-xs">
-            <span class="glyphicon glyphicon-plus"></span> New Design
-          </button>
-        </h4>
-      </div>
       <div id="editing-rods" class="panel-collapse in">
         <div id="edit-rods-content" class="panel-body">
           <label>
             Rename:
             <input ng-model="designs[design].name">
           </label>
-          <button ng-click="removeDesign(design)" id="delete-design" type="button" class="delete-design btn btn-danger btn-xs">
-            <span class="glyphicon glyphicon-trash"></span> Delete this design
-          </button>
           <div id="render-poles-check" class="checkbox">
             <label>
               <input type="checkbox" ng-model="renderPoles">
