@@ -2,6 +2,7 @@
 <html ng-app="simulator">
   <head>
     <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="favicon.png">
     <title>Light Sculpture Simulator</title>
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/main.css">
@@ -23,7 +24,7 @@
   <body ng-controller="SimCtrl">
     <div id="glcanvas" ls-view></div>
     <a ng-click="coding = true" type="button" class="btn btn-primary btn-large" id="edit-code">Edit code</a>
-    <a id="export" type="button" class="btn btn-primary btn-large" ng-click="export()">Export</a>
+    <a id="export" type="button" class="btn btn-primary btn-large" ng-click="export()">Save</a>
     <input type="file" id="import" class="btn btn-primary btn-large">Import</a>
     <div id="edit-rods-heading" class="panel-heading btn btn-primary btn-large">
       <h4 class="panel-title ">
