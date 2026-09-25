@@ -25,7 +25,9 @@
     <div id="glcanvas" ls-view></div>
     <a ng-click="coding = true" type="button" class="btn btn-primary btn-large" id="edit-code">Edit code</a>
     <a id="export" type="button" class="btn btn-primary btn-large" ng-click="export()">Save</a>
-    <input type="file" id="import" class="btn btn-primary btn-large">Import</a>
+    <input type="file" id="import" class="btn btn-primary btn-large">
+    <a id="screenshot" type="button" class="btn btn-primary btn-large" ng-click="screenshot()">Screenshot</a>
+    <p id="export-note">Designs are saved only in this browser. Use <b>Save</b> to export a .ls file before you leave, or your work may be lost.</p>
     <div id="edit-rods-heading" class="panel-heading btn btn-primary btn-large">
       <h4 class="panel-title ">
         <a class="accordion-toggle" data-toggle="collapse" href="#editing-rods">

@@ -70,6 +70,39 @@ body {
   padding: 15px;
 }
 
+/* The heading text is white, so give the design dropdown its own dark-on-white
+   colors, otherwise the selected design name is invisible. */
+#edit-rods-heading select {
+  color: #333;
+  background-color: #fff;
+}
+
+#screenshot {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  width: 130px;
+  height: 50px;
+  padding: 10px;
+  font-size: 18px;
+}
+
+/* Small reminder that designs live only in this browser tab. Sits in the free
+   strip between the heading (400px) and the screenshot button (top-right). */
+#export-note {
+  position: absolute;
+  top: 0px;
+  left: 410px;
+  right: 145px;
+  margin: 0;
+  padding: 8px 12px;
+  font-size: 12px;
+  line-height: 1.3;
+  color: #333;
+  background-color: rgba(255, 255, 255, 0.85);
+  border-radius: 3px;
+}
+
 #edit-rods {
   position: absolute;
   top: 50px;

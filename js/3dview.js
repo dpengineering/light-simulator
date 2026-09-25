@@ -5,7 +5,8 @@
         var WIDTH = window.innerWidth,
             HEIGHT = window.innerHeight,
             scene = new THREE.Scene(),
-            renderer = new THREE.WebGLRenderer({antialias: true}),
+            // preserveDrawingBuffer lets us read pixels back for the screenshot button.
+            renderer = new THREE.WebGLRenderer({antialias: true, preserveDrawingBuffer: true}),
             camera = new THREE.PerspectiveCamera(45, WIDTH / HEIGHT, 0.1, 20000),
             controls;
         renderer.setSize(WIDTH, HEIGHT);
@@ -110,6 +111,28 @@
                 rod.material = makeMaterial(rod.color, pins[i]);
             }
         }, true);
+
+        // Capture just the WebGL sculpture, cropping off the toolbox column on
+        // the left. The toolbox is HTML overlaid on the canvas, so it is never
+        // part of the pixel buffer; we only need to trim its width away.
+        var TOOLBOX_WIDTH = 400; // px, matches #edit-rods / #edit-rods-heading
+        $scope.screenshot = function() {
+            var canvas = renderer.domElement;
+            // Convert the CSS toolbox width into drawing-buffer pixels (handles HiDPI).
+            var scale = canvas.width / (canvas.clientWidth || canvas.width);
+            var sx = Math.round(TOOLBOX_WIDTH * scale);
+            var sw = canvas.width - sx,
+                sh = canvas.height;
+            if (sw <= 0) { sx = 0; sw = canvas.width; }
+
+            var out = document.createElement('canvas');
+            out.width = sw;
+            out.height = sh;
+            out.getContext('2d').drawImage(canvas, sx, 0, sw, sh, 0, 0, sw, sh);
+
+            var name = $scope.designs[$scope.design].name || "sculpture";
+            out.toBlob(function(blob) { saveAs(blob, name + ".png"); });
+        };
 
         function animate() {
             requestAnimationFrame(animate);

@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html ng-app="simulator">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Light Sculpture Simulator</title>
+
+    <!-- All heavy libraries come from CDNs so this file stays tiny (~15KB). -->
+    <!-- three.js is pinned to r61 (the revision the app was written against) -->
+    <!-- and OrbitControls is served from the same tag so the APIs match. -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.9/angular.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r61/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r61/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <style>
+      /* ---- inlined from css/main.css (code-editor rules removed) ---- */
+      *, *:before, *:after {
+        -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+      }
+      body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
+      #glcanvas { position: absolute; top: 0; width: 100%; height: 100%; overflow: hidden; }
+      #export {
+        position: absolute; bottom: 0px; left: 0px; width: 150px; height: 50px;
+        padding: 10px; font-size: 20px;
+      }
+      #import { position: absolute; bottom: 0px; left: 150px; width: 250px; height: 50px; padding: 13px; }
+      #edit-rods-heading{
+        position: absolute; top: 0px; left: 0px; width: 400px; height: 50px; margin: auto;
+        background-color: #428bca; color: white; padding: 15px;
+      }
+      /* Heading text is white, so give the design dropdown dark-on-white colors. */
+      #edit-rods-heading select { color: #333; background-color: #fff; }
+      #screenshot {
+        position: absolute; top: 0px; right: 0px; width: 130px; height: 50px;
+        padding: 10px; font-size: 18px;
+      }
+      #export-note {
+        position: absolute; top: 0px; left: 410px; right: 145px; margin: 0;
+        padding: 8px 12px; font-size: 12px; line-height: 1.3; color: #333;
+        background-color: rgba(255, 255, 255, 0.85); border-radius: 3px;
+      }
+      #edit-rods {
+        position: absolute; top: 50px; left: 0px; width: 400px;
+        max-height: calc(100% - 100px); overflow: scroll;
+      }
+      .add-rod { float: right; margin-top: 1px; }
+      #new-design { float: left; margin-top: -1px; }
+      #add-pole { margin-bottom: 15px; }
+      .panel-heading .accordion-toggle:after {
+        font-family: 'Glyphicons Halflings'; content: "\e114"; float: right;
+        margin-left: 10px; margin-right: -5px;
+        transition: -moz-transform 0.35s ease; transition: -webkit-transform 0.35s ease;
+        transition: -o-transform 0.35s ease; transition: -ms-transform 0.35s ease;
+      }
+      .panel-heading .accordion-toggle.collapsed:after {
+        -moz-transform: rotate(-90deg); -webkit-transform: rotate(-90deg);
+        -o-transform: rotate(-90deg); -ms-transform: rotate(-90deg);
+      }
+      .edit-pole .accordion-toggle:after { margin-top: 4px; }
+      .edit-pole-main { padding-bottom: 0; }
+      .panel-title input { width: 50px; text-align: center; }
+      .rod-row input { width: 100%; text-align: center; }
+      .rod-val { margin-bottom: 3px; }
+      #render-poles-check { margin-top: -2px; margin-bottom: 10px; }
+      .delete-pole { margin-top: -30px; }
+      .delete-design { margin-top: -4px; }
+    </style>
+  </head>
+
+  <body ng-controller="SimCtrl">
+    <div id="glcanvas" ls-view></div>
+
+    <a id="export" type="button" class="btn btn-primary btn-large" ng-click="export()">Save</a>
+    <input type="file" id="import" class="btn btn-primary btn-large">
+    <a id="screenshot" type="button" class="btn btn-primary btn-large" ng-click="screenshot()">Screenshot</a>
+    <p id="export-note">Designs are saved only in this browser. Use <b>Save</b> to export a .ls file before you leave, or your work may be lost.</p>
+
+    <div id="edit-rods-heading" class="panel-heading btn btn-primary btn-large">
+      <h4 class="panel-title ">
+        <a class="accordion-toggle" data-toggle="collapse" href="#editing-rods"></a>
+        <button ng-click="newDesign()" id="new-design" type="button" class="btn btn-success btn-xs">
+          <span class="glyphicon glyphicon-plus"></span> New Design
+        </button>
+        <select ng-model="design" ng-options="k as k for (k, v) in designs"></select>
+      </h4>
+    </div>
+
+    <div id="edit-rods" class="panel panel-primary">
+      <div id="editing-rods" class="panel-collapse in">
+        <div id="edit-rods-content" class="panel-body">
+          <label>
+            Rename:
+            <input ng-model="designs[design].name">
+          </label>
+          <div id="render-poles-check" class="checkbox">
+            <label>
+              <input type="checkbox" ng-model="renderPoles">
+              Render poles
+            </label>
+          </div>
+          <button ng-click="addPole()" id="add-pole" type="button" class="btn btn-success btn-xs">
+            <span class="glyphicon glyphicon-plus"></span> Add Pole
+          </button>
+          <div class="panel panel-default edit-pole" ng-repeat="pole in designs[design].poles">
+            <div ng-include="'partials/pole.html'"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================= -->
+    <!-- Angular templates: these replace the old partials/*.html files -->
+    <!-- so nothing is fetched over HTTP (ng-include reads them from    -->
+    <!-- the template cache), which is what lets this be one file.      -->
+    <!-- ============================================================= -->
+    <script type="text/ng-template" id="partials/pole.html">
+      <div class="panel-heading">
+        <h4 class="panel-title">
+          <a class="accordion-toggle" ng-class="{collapsed: pole.collapsed}"
+             ng-click="pole.collapsed = !pole.collapsed" style="cursor: pointer;">
+            Pole
+          </a>
+          at (<input class="pole-pos pole-x" type="text" ng-model="pole.pos[0]" parse-float>,
+          <input class="pole-pos pole-y" type="text" ng-model="pole.pos[1]" parse-float>)
+          <button ng-click="addRod(pole)" type="button" class="add-rod btn btn-success btn-xs">
+            <span class="glyphicon glyphicon-plus"></span> Add Rod
+          </button>
+        </h4>
+      </div>
+      <div class="panel-collapse" ng-hide="pole.collapsed">
+        <div class="panel-body edit-pole-main">
+          <button ng-click="deletePole(pole)" type="button" class="delete-pole btn btn-danger btn-xs">
+            <span class="glyphicon glyphicon-trash"></span> Delete this Pole
+          </button>
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th><span class="glyphicon glyphicon-trash"></span></th>
+                <th>##</th>
+                <th>R</th>
+                <th>&theta;</th>
+                <th>Height</th>
+                <th>Color</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="rod-row" ng-include="'partials/rod.html'" ng-repeat="rod in pole.rods">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </script>
+
+    <script type="text/ng-template" id="partials/rod.html">
+      <td><button ng-click="deleteRod(pole, rod)" type="button" class="delete-rod btn btn-danger btn-xs">
+          <span class="glyphicon glyphicon-trash"></span></button></td>
+      <td><span class="rod-val">{{ rod.num }}</span><br></td>
+      <td><input class="rod-val radius" ng-model="rod.r" type="text"><br></td>
+      <td><input class="rod-val theta" ng-model="rod.theta" value="{theta}" type="text"><br></td>
+      <td><input class="rod-val height" ng-model="rod.height" type="text"><br></td>
+      <td><select ng-model="rod.color" ng-options="c for c in ['R', 'G', 'B', 'O', 'Y', 'W']"></td>
+    </script>
+
+    <!-- ============================================================= -->
+    <!-- App code (inlined from js/3dview.js + js/controllers.js).      -->
+    <!-- The code editor / execution (js/code.js + picoc) is removed.   -->
+    <!-- ============================================================= -->
+    <script>
+    /* ---- 3D view (from js/3dview.js) ---- */
+    (function(angular, THREE) {
+        var module = angular.module('simulator.lsview', []);
+        module.directive('lsView', function() { return {link: lsView}; });
+        function lsView($scope, elem, attrs) {
+            var WIDTH = window.innerWidth,
+                HEIGHT = window.innerHeight,
+                scene = new THREE.Scene(),
+                // preserveDrawingBuffer lets us read pixels back for the screenshot button.
+                renderer = new THREE.WebGLRenderer({antialias: true, preserveDrawingBuffer: true}),
+                camera = new THREE.PerspectiveCamera(45, WIDTH / HEIGHT, 0.1, 20000),
+                controls;
+            renderer.setSize(WIDTH, HEIGHT);
+            renderer.setFaceCulling(THREE.CullFaceNone);
+            elem.append(renderer.domElement);
+
+            camera.position.set(-4, 6, 0);
+            scene.add(camera);
+
+            window.addEventListener("resize", refreshCanvasSize);
+
+            renderer.setClearColor(0xaaaaaa, 1);
+
+            var light = new THREE.PointLight(0xffffff);
+            light.position.set(-10, 10, -10);
+            light.intensity = 0.5;
+            scene.add(light);
+
+            var baseGeom = new THREE.CubeGeometry(4, 2, 4);
+            var baseMat = new THREE.MeshPhongMaterial({color: 0xffffff});
+            var base = new THREE.Mesh(baseGeom, baseMat);
+            base.position.set(0, -1, 0);
+            scene.add(base);
+
+            function refreshCanvasSize() {
+                var WIDTH = window.innerWidth,
+                    HEIGHT = window.innerHeight;
+                renderer.setSize(WIDTH, HEIGHT);
+                camera.aspect = WIDTH / HEIGHT;
+                camera.updateProjectionMatrix();
+            }
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+            var rodsThree = [], polesThree = [];
+            function designChange() {
+                rodsThree.forEach(function(r) { scene.remove(r); });
+                rodsThree = [];
+                polesThree.forEach(function(p) { scene.remove(p); });
+                polesThree = [];
+
+                var poles = $scope.designs[$scope.design].poles;
+                for (var i in poles) {
+                    var pole = poles[i];
+                    // Yes, I switched the order. No, I don't know why.
+                    var x0 = pole.pos[1] + 2, y0 = pole.pos[0] + 2;
+
+                    if ($scope.renderPoles) {
+                        var geom = new THREE.CylinderGeometry(0.05, 0.05, 1, 32, 1, false);
+                        var material = new THREE.MeshLambertMaterial({color: 0x000000});
+                        var mesh = new THREE.Mesh(geom, material);
+                        mesh.position.set(x0, 1 / 2, y0);
+                        scene.add(mesh);
+                        polesThree.push(mesh);
+                    }
+
+                    pole.rods.forEach(function(rod) {
+                        var angle = -rod.theta * Math.PI / 180 + Math.PI / 2;
+                        var x = x0 + rod.r * Math.cos(angle),
+                            y = y0 + rod.r * Math.sin(angle),
+                            height = rod.height;
+                        var geom = new THREE.CylinderGeometry(0.125, 0.125, height, 32, 1, false);
+                        var b = (i in $scope.pins) ? $scope.pins[i] : 255;
+                        var material = makeMaterial(rod.color, b);
+                        var mesh = new THREE.Mesh(geom, material);
+                        mesh.position.set(x, height / 2 + 0.01, y);
+                        mesh.color = rod.color;
+                        scene.add(mesh);
+                        rodsThree.push(mesh);
+                        if ($scope.renderPoles) {
+                            var lineMat = new THREE.LineBasicMaterial({color: 0x00ff00});
+                            var lineGeom = new THREE.Geometry();
+                            lineGeom.vertices.push(new THREE.Vector3(x0, 0.01, y0));
+                            lineGeom.vertices.push(new THREE.Vector3(x, 0.01, y));
+                            var line = new THREE.Line(lineGeom, lineMat);
+                            scene.add(line);
+                            polesThree.push(line);
+                        }
+                    });
+                }
+            }
+            $scope.$watch('designs', designChange, true);
+            $scope.$watch('design', designChange, true);
+            $scope.$watch('renderPoles', designChange, true);
+            $scope.$watch('pins', function(pins) {
+                for (var i in pins) {
+                    var rod = rodsThree[i];
+                    rod.material = makeMaterial(rod.color, pins[i]);
+                }
+            }, true);
+
+            // Capture just the WebGL sculpture, cropping off the toolbox column on
+            // the left. The toolbox is HTML overlaid on the canvas, so it is never
+            // part of the pixel buffer; we only need to trim its width away.
+            var TOOLBOX_WIDTH = 400; // px, matches #edit-rods / #edit-rods-heading
+            $scope.screenshot = function() {
+                var canvas = renderer.domElement;
+                // Convert the CSS toolbox width into drawing-buffer pixels (handles HiDPI).
+                var scale = canvas.width / (canvas.clientWidth || canvas.width);
+                var sx = Math.round(TOOLBOX_WIDTH * scale);
+                var sw = canvas.width - sx,
+                    sh = canvas.height;
+                if (sw <= 0) { sx = 0; sw = canvas.width; }
+
+                var out = document.createElement('canvas');
+                out.width = sw;
+                out.height = sh;
+                out.getContext('2d').drawImage(canvas, sx, 0, sw, sh, 0, 0, sw, sh);
+
+                var name = $scope.designs[$scope.design].name || "sculpture";
+                out.toBlob(function(blob) { saveAs(blob, name + ".png"); });
+            };
+
+            function animate() {
+                requestAnimationFrame(animate);
+                renderer.render(scene, camera);
+                controls.update();
+            }
+            animate();
+        }
+
+        function makeMaterial(color, brightness) {
+            return new THREE.MeshLambertMaterial({color: 0xffffff,
+                                                  transparent: true,
+                                                  opacity: 0.35,
+                                                  combine: THREE.MixOperation,
+                                                  reflectivity: 0.25,
+                                                  refractionRatio: 0.5,
+                                                  emissive: colorToHex(color, brightness)});
+        }
+
+        function colorToHex(c, b) {
+            var b = b !== undefined ? b : 255;
+            switch (c) {
+            case 'R': return (b << 16);
+            case 'G': return (b << 8);
+            case 'B': return b;
+            case 'Y': return (b << 16) | (b << 8);
+            case 'O': return (b << 16) | ((b/2) << 8);
+            case 'W': return (b << 16) | (b << 8) | b;
+            default:  return 0x000000;
+            }
+        }
+    })(angular, THREE);
+
+    /* ---- controllers (from js/controllers.js) ---- */
+    var simulator = angular.module("simulator", ["simulator.lsview"]);
+
+    simulator.controller('SimCtrl', ['$scope', '$rootScope', SimCtrl]);
+    function SimCtrl($scope, $rootScope) {
+        $scope.renderPoles = true;
+        bindLocalStorage($scope, 'designs', {});
+        startWatch($scope);
+        $scope.pins = {};
+
+        $scope.export = function() {
+            var design = $scope.designs[$scope.design];
+            saveAs(new Blob([JSON.stringify(design)]), design.name + ".ls");
+        };
+
+        document.getElementById("import").addEventListener('change', function(evt) {
+            var file = evt.target.files[0];
+            if (!file || file.name.slice(-3) !== ".ls") {
+                return;
+            }
+            var reader = new FileReader();
+            reader.onloadend = function() {
+                $scope.$apply(function() {
+                    var value = JSON.parse(reader.result);
+                    $scope.designs[value.name] = value;
+                    $scope.design = value.name;
+                });
+            };
+            reader.readAsText(file);
+        }, false);
+    }
+
+    // Persist designs to localStorage where available; degrade quietly if a
+    // sandboxed iframe blocks storage (designs simply reset on reload).
+    function bindLocalStorage($scope, key, def) {
+        var stored = def;
+        try {
+            var raw = window.localStorage.getItem(key);
+            if (raw) { stored = JSON.parse(raw); }
+        } catch (e) {}
+        $scope[key] = stored;
+        $scope.$watch(key, function(val) {
+            try { window.localStorage.setItem(key, JSON.stringify(val)); } catch (e) {}
+        }, true);
+    }
+
+    // Minimal replacement for FileSaver's saveAs (no external dependency).
+    // Note: file downloads may be blocked inside a sandboxed iframe.
+    function saveAs(blob, filename) {
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function() { document.body.removeChild(a); URL.revokeObjectURL(url); }, 0);
+    }
+
+    function startWatch($scope) {
+        var preciseDefaultHeight = (3).toFixed(3);
+        var preciseDefaultRadius = (0).toFixed(3);
+
+        $scope.designs["Concentric"] = {name: "Concentric", programs: {}, poles:
+            [{rods: [
+                {num: 2, r: 0, theta: 0, height: (2).toFixed(3), color: 'W'},
+                {num: 3, r: (0.750).toFixed(3), theta: 0, height: (2).toFixed(3), color: 'W'},
+                {num: 4, r: (0.750).toFixed(3), theta: 90, height: (2).toFixed(3), color: 'W'},
+                {num: 5, r: (0.750).toFixed(3), theta: 180, height: (2).toFixed(3), color: 'W'},
+                {num: 6, r: (0.750).toFixed(3), theta: 270, height: (2).toFixed(3), color: 'W'},
+                {num: 7, r: (1.500).toFixed(3), theta: 0, height: (2).toFixed(3), color: 'W'},
+                {num: 8, r: (1.500).toFixed(3), theta: 45, height: (2).toFixed(3), color: 'W'},
+                {num: 9, r: (1.500).toFixed(3), theta: 90, height: (2).toFixed(3), color: 'W'},
+                {num: 10, r: (1.500).toFixed(3), theta: 135, height: (2).toFixed(3), color: 'W'},
+                {num: 11, r: (1.500).toFixed(3), theta: 180, height: (2).toFixed(3), color: 'W'},
+                {num: 12, r: (1.500).toFixed(3), theta: 225, height: (2).toFixed(3), color: 'W'},
+                {num: 13, r: (1.500).toFixed(3), theta: 270, height: (2).toFixed(3), color: 'W'},
+                {num: 14, r: (1.500).toFixed(3), theta: 315, height: (2).toFixed(3), color: 'W'}
+            ], pos: [-2, -2]}
+        ]};
+
+        $scope.removeDesign = function(design) {
+            delete $scope.designs[design];
+            if (len($scope.designs) == 0) {
+                $scope.newDesign();
+            } else {
+                $scope.design = getFirstKey($scope.designs);
+            }
+        };
+        $scope.newDesign = function() {
+            $scope.designs["New Design"] = {name: "New Design", programs: {}, poles:
+                                            [{rods: [{num: 2, r: preciseDefaultRadius, theta: 0, height: preciseDefaultHeight, color: 'W'}], pos: [-2, -2]}]};
+            $scope.design = "New Design";
+        };
+        $scope.setDesign = function(name) {
+            if (typeof name !== 'undefined') {
+                $scope.design = name;
+            } else {
+                if (len($scope.designs) == 0) {
+                    $scope.newDesign();
+                } else {
+                    $scope.design = getFirstKey($scope.designs);
+                }
+            }
+        };
+        $scope.addPole = function() {
+            var design = $scope.designs[$scope.design];
+
+            // Limiting student to 4 poles at maximum (as per the project constraints).
+            if (design.poles.length >= 4) {
+                window.alert("Please design your light sculpture with 4 or fewer poles, as per the project constraints!")
+                return;
+            }
+
+            if ($scope.numberRods(true) > 15) {
+                design.poles.push({rods: [], pos: [-2, -2]});
+            } else {
+                design.poles.push({rods: [{num: 0, r: preciseDefaultRadius, theta: 0, height: preciseDefaultHeight, color: 'W'}], pos: [-2, -2]});
+            }
+            $scope.numberRods();
+        };
+        $scope.deletePole = function(pole) {
+            var poles = $scope.designs[$scope.design].poles;
+            poles.splice(poles.indexOf(pole), 1);
+            $scope.numberRods();
+        };
+        $scope.addRod = function(pole) {
+            if ($scope.numberRods(true) > 15) {
+                return;
+            }
+            pole.rods.push({num: 0, r: preciseDefaultRadius, theta: 0, height: preciseDefaultHeight, color: 'W'});
+            $scope.numberRods();
+        };
+        $scope.deleteRod = function(pole, rod) {
+            var poles = $scope.designs[$scope.design].poles,
+                pole = poles[poles.indexOf(pole)];
+            pole.rods.splice(pole.rods.indexOf(rod), 1);
+            $scope.numberRods();
+        };
+        $scope.numberRods = function(justTheNumber) {
+            justTheNumber = justTheNumber || false;
+            var poles = $scope.designs[$scope.design].poles;
+            var rodNum = 2;
+            poles.forEach(function(pole) {
+                pole.rods.forEach(function(rod) {
+                    if (!justTheNumber) {
+                        rod.num = rodNum;
+                    }
+                    rodNum += 1;
+                });
+            });
+            return rodNum;
+        };
+        $scope.setDesign();
+        $scope.$watch("designs[design].name", function(n) {
+            if (typeof n !== 'undefined' && $scope.design !== n) {
+                $scope.designs[n] = $scope.designs[$scope.design];
+                delete $scope.designs[$scope.design];
+                $scope.design = n;
+            }
+        });
+    }
+
+    simulator.directive('parseFloat', function() { return { require: 'ngModel', link: parseFloatDir }; });
+    function parseFloatDir($scope, elem, attrs, modelCtrl) {
+        var parseFloatOrZero = function(val) {
+            var parsed = parseFloat(val);
+            if (isNaN(parsed)) { return 0.0; } else { return parsed; }
+        };
+        modelCtrl.$parsers.push(parseFloatOrZero);
+    }
+
+    function len(o) {
+        var count = 0;
+        for (var k in o) { if (o.hasOwnProperty(k)) { count++; } }
+        return count;
+    }
+
+    function getFirstKey(o) {
+        for (var k in o) {
+            if (o.hasOwnProperty(k) && k.charAt(0) != '$') { return k; }
+        }
+        return null;
+    }
+    </script>
+  </body>
+</html>

@@ -1,6 +1,7 @@
 <div class="panel-heading">
   <h4 class="panel-title">
-    <a class="accordion-toggle in" data-toggle="collapse" href="#editing-pole{i}">
+    <a class="accordion-toggle" ng-class="{collapsed: pole.collapsed}"
+       ng-click="pole.collapsed = !pole.collapsed" style="cursor: pointer;">
       Pole
     </a>
     at (<input class="pole-pos pole-x" type="text" ng-model="pole.pos[0]" parse-float>,
@@ -10,7 +11,7 @@
     </button>
   </h4>
 </div>
-<div class="panel-collapse in">
+<div class="panel-collapse" ng-hide="pole.collapsed">
   <div class="panel-body edit-pole-main">
     <button ng-click="deletePole(pole)" type="button" class="delete-pole btn btn-danger btn-xs">
       <span class="glyphicon glyphicon-trash"></span> Delete this Pole
